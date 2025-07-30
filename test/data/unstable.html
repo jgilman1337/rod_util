@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Live Unstable DOM</title>
+		<style>
+			#box {
+				position: relative;
+				width: 100px;
+				height: 50px;
+				background-color: lightblue;
+				transition: left 0.3s ease;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="box">Shifting Box</div>
+
+		<script>
+			const box = document.getElementById("box");
+
+			function updatePosition() {
+				//Set a random left offset between 0 and 100px
+				const newLeft = Math.floor(Math.random() * 100);
+				box.style.left = newLeft + "px";
+			}
+
+			//Run updatePosition every 500 milliseconds (half a second)
+			setInterval(updatePosition, 500);
+		</script>
+	</body>
+
+</html>
