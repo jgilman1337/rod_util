@@ -42,6 +42,7 @@ func DefaultBrowserOptsWLogger(l *log.Logger) BrowserOpts {
 // Returns the default options for the sandboxless browser when running manual tests.
 func DefaultBrowserOptsDbg() BrowserOpts {
 	defaults := DefaultBrowserOpts()
+	defaults.Headless = false
 	defaults.Leakless = false //Keeps the browser open for post-run examination
 	defaults.DevTools = true
 	return defaults
