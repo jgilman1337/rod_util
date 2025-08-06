@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
+
+	"github.com/go-rod/rod"
 
 	rutil "github.com/jgilman1337/rod_util/pkg"
 )
@@ -80,41 +81,42 @@ func TestTimeoutLoad(t *testing.T) {
 }
 
 func TestTimeoutDOM(t *testing.T) {
-	//Set test vars
-	srv := newDOMUnstableServer()
-	//Force-kills the httptest.server
-	defer func() {
-		srv.Config.Close()
-		srv.Listener.Close()
-	}()
-
-	//Launch Rod
-	browser, launcher, err := rutil.BuildSandboxless(rutil.DefaultBrowserOpts())
-	if err != nil {
-		t.Fatalf("Failed to launch browser: %s", err)
+	test := func(_ *rod.Browser, _ *rod.Page) {
+		//Nada
 	}
-	defer rutil.RodFree(browser, launcher)
+	htmlRunner(t, "unstable.html", false, 5, test)
+}
 
-	//Setup a page, with timeout; applies to the entire process, not just `page.Navigate`
-	page := rutil.BlankPage(browser).Timeout(5 * time.Second)
-	defer page.Close()
-	if err := page.Navigate(srv.URL); err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			t.Log("Successfully stopped page load early")
+func TestHasElement(t *testing.T) {
+	selector := "#e"
+	expected := "blue"
+
+	test := func(b *rod.Browser, p *rod.Page) {
+		//Get an element
+		elem, err := rutil.SafeSelect(p, selector)
+		if err != nil {
+			t.Fatalf("Has() failed: %s", err)
+		}
+
+		//Get text from the element
+		actual := "<no match>"
+		if elem != nil {
+			if err := rod.Try(func() {
+				actual = elem.MustText()
+			}); err != nil {
+				t.Fatalf("MustText() failed: %s", err)
+			}
+		}
+
+		//Test
+		t.Logf("First DOM item: %s", actual)
+		if expected != actual {
+			t.Logf("%s != %s", expected, actual)
 		} else {
-			t.Fatalf("Failed to create a webpage: %s", err)
+			t.Logf("%s = %s", expected, actual)
 		}
 	}
-
-	//Wait for the page to load
-	fmt.Println("done creating page; waiting on DOM")
-	if err := page.WaitDOMStable(time.Second, 0); err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			t.Log("Successfully stopped DOM wait early")
-		} else {
-			t.Fatalf("WaitDOMStable failed: %s", err)
-		}
-	}
+	htmlRunner(t, "dom_cycle.html", true, 5, test)
 }
 
 func TestGetParseJSON(t *testing.T) {

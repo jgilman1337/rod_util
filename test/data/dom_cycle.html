@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Live Cycling DOM</title>
+		<style>
+			.box {
+				position: relative;
+				width: 200px;
+				height: 100px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+
+		<script>
+			const container = document.getElementById("container");
+			const elems = {
+				"a": "red",
+				"b": "orange",
+				"c": "yellow",
+				"d": "green",
+				"e": "blue",
+				"f": "purple"
+			};
+
+			function getRandomItem(obj) {
+				const keys = Object.keys(obj);
+				const randomKey = keys[Math.floor(Math.random() * keys.length)];
+				return randomKey;
+			}
+
+			function updateDOM() {
+				container.innerHTML = "";
+				const id = getRandomItem(elems);
+
+				const newDiv = document.createElement("div");
+				newDiv.className = "box";
+				newDiv.id = id;
+				newDiv.innerHTML = elems[id];
+				newDiv.style.backgroundColor = elems[id];
+
+				container.appendChild(newDiv);
+			}
+			updateDOM(); //Initial state
+
+			//Run updateDOM every 1500 milliseconds (a second and a half)
+			setInterval(updateDOM, 1500);
+		</script>
+	</body>
+
+</html>

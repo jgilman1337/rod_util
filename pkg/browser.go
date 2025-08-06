@@ -76,3 +76,18 @@ func RodFreeManual(b *rod.Browser, l *launcher.Launcher) {
 	dir := l.Get(flags.UserDataDir)
 	_ = os.RemoveAll(dir)
 }
+
+// Safely selects an element by its CSS selector using `p.Has()` This function doesn't halt when the element isn't found.
+func SafeSelect(p *rod.Page, selector string) (*rod.Element, error) {
+	//Check for existence
+	exist, elem, err := p.Has(selector)
+	if err != nil {
+		return nil, err
+	}
+
+	//If the element exists and is not nil
+	if exist && elem != nil {
+		return elem, nil
+	}
+	return nil, nil
+}
